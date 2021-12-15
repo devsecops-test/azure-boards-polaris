@@ -23,7 +23,15 @@ jobs:
       - script: $(pyTools.pythonLocation)/bin/pip install --upgrade pandas requests jsonapi_requests azure-devops
         displayName: Install Python Module Dependencies
         condition: or(eq(variables['Build.SourceBranchName'], 'main'), eq(variables['Build.Reason'], 'PullRequest'))
-
+      
+      - bash: |
+          wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/git-assign-issues.py
+          wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/azure-polaris-issues-tool.py
+          wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/azure-polaris-annotate-pr.py
+          chmod +x git-assign-issues.py
+          chmod +x azure-polaris-issues-tool.py
+          chmod +x azure-polaris-annotate-pr.py
+      
       - bash: python3 synopsys-azure-tools/git-assign-issues.py --url $POLARIS_URL --project $BUILD_REPOSITORY_NAME
         displayName: Assign issues to owners
           # Run full analysis only on builds of master, not on pull requests
