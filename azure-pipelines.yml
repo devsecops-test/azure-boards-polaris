@@ -26,7 +26,7 @@ jobs:
 
       - script: |
             git clone -q --depth 1 $SYNOPSYS_AZURE_TOOLS_REPO
-            $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project $BUILD_REPOSITORY_NAME
+            $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project "sig-devsecops/github-io-sample"
         displayName: Create Work Items for New Issues
         # Only create work items for pushes to a main branch
         condition: eq(variables['Build.SourceBranchName'], 'main')
@@ -34,13 +34,3 @@ jobs:
           SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           POLARIS_URL: $(POLARIS_URL)
           POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
-
-      - script: $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --project $BUILD_REPOSITORY_NAME $SECURITY_GATE_ARGS --exit1-if-issues
-        displayName: Check Polaris Security Gate
-        # Break the build on central results only on master
-        # TODO break the build differently on pull request
-        condition: eq(variables['Build.SourceBranchName'], 'main')
-        env:
-          POLARIS_URL: $(POLARIS_URL)
-          POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
-          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
