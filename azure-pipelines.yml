@@ -18,16 +18,16 @@ jobs:
           addToPath: true
         name: pyTools
         # Set up Python if it is master or a pull request
-        condition: or(eq(variables['Build.SourceBranchName'], 'master'), eq(variables['Build.Reason'], 'PullRequest'))
+        condition: or(eq(variables['Build.SourceBranchName'], 'main'), eq(variables['Build.Reason'], 'PullRequest'))
 
       - script: $(pyTools.pythonLocation)/bin/pip install --upgrade pandas requests jsonapi_requests azure-devops
         displayName: Install Python Module Dependencies
-        condition: or(eq(variables['Build.SourceBranchName'], 'master'), eq(variables['Build.Reason'], 'PullRequest'))
+        condition: or(eq(variables['Build.SourceBranchName'], 'main'), eq(variables['Build.Reason'], 'PullRequest'))
 
       - bash: python3 synopsys-azure-tools/git-assign-issues.py --url $POLARIS_URL --project $BUILD_REPOSITORY_NAME
         displayName: Assign issues to owners
           # Run full analysis only on builds of master, not on pull requests
-        condition: eq(variables['Build.SourceBranchName'], 'master')
+        condition: eq(variables['Build.SourceBranchName'], 'main')
         env:
           POLARIS_URL: $(POLARIS_URL)
           POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
@@ -35,7 +35,7 @@ jobs:
       - script: $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project $BUILD_REPOSITORY_NAME
         displayName: Create Work Items for New Issues
         # Only create work items for pushes to a main branch
-        condition: eq(variables['Build.SourceBranchName'], 'master')
+        condition: eq(variables['Build.SourceBranchName'], 'main')
         env:
           SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           POLARIS_URL: $(POLARIS_URL)
@@ -55,7 +55,7 @@ jobs:
         displayName: Check Polaris Security Gate
         # Break the build on central results only on master
         # TODO break the build differently on pull request
-        condition: eq(variables['Build.SourceBranchName'], 'master')
+        condition: eq(variables['Build.SourceBranchName'], 'main')
         env:
           POLARIS_URL: $(POLARIS_URL)
           POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
