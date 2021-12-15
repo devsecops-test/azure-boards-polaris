@@ -25,8 +25,7 @@ jobs:
         condition: or(eq(variables['Build.SourceBranchName'], 'main'), eq(variables['Build.Reason'], 'PullRequest'))
 
       - script: |
-            wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/azure-polaris-issues-tool.py
-            chmod +x azure-polaris-issues-tool.py
+            git clone -q --depth 1 $SYNOPSYS_AZURE_TOOLS_REPO
             $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project $BUILD_REPOSITORY_NAME
         displayName: Create Work Items for New Issues
         # Only create work items for pushes to a main branch
