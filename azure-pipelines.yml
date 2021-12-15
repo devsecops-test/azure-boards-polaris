@@ -26,7 +26,7 @@ jobs:
 
       - script: |
             git clone -q --depth 1 $SYNOPSYS_AZURE_TOOLS_REPO
-            $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project "sig-devsecops/github-io-sample" --branch "origin/master"
+            $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --az-work-items --project "sig-devsecops/github-io-sample" --branch "origin/master"
         displayName: Create Work Items for New Issues
         # Only create work items for pushes to a main branch
         condition: eq(variables['Build.SourceBranchName'], 'main')
