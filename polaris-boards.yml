@@ -1,0 +1,61 @@
+parameters:
+  security_gate_args: "--new"
+
+jobs:
+  - job: CoverityOnPolaris
+
+    variables:
+      SYNOPSYS_AZURE_TOOLS_REPO: https://github.com/synopsys-sig-community/synopsys-azure-tools
+      SECURITY_GATE_ARGS: ${{ parameters.security_gate_args }}
+
+    steps:
+      # Only use this for microsoft-hosted environments
+      - task: UsePythonVersion@0
+        displayName: Get Python Interpreter
+        inputs:
+          versionSpec: '3.7'
+          addToPath: true
+        name: pyTools
+        # Set up Python if it is master or a pull request
+        condition: or(eq(variables['Build.SourceBranchName'], 'master'), eq(variables['Build.Reason'], 'PullRequest'))
+
+      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade pandas requests jsonapi_requests azure-devops
+        displayName: Install Python Module Dependencies
+        condition: or(eq(variables['Build.SourceBranchName'], 'master'), eq(variables['Build.Reason'], 'PullRequest'))
+
+      - bash: python3 synopsys-azure-tools/git-assign-issues.py --url $POLARIS_URL --project $BUILD_REPOSITORY_NAME
+        displayName: Assign issues to owners
+          # Run full analysis only on builds of master, not on pull requests
+        condition: eq(variables['Build.SourceBranchName'], 'master')
+        env:
+          POLARIS_URL: $(POLARIS_URL)
+          POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
+
+      - script: $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project $BUILD_REPOSITORY_NAME
+        displayName: Create Work Items for New Issues
+        # Only create work items for pushes to a main branch
+        condition: eq(variables['Build.SourceBranchName'], 'master')
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          POLARIS_URL: $(POLARIS_URL)
+          POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
+
+      - script: $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-annotate-pr.py
+        displayName: Annotate pull request
+        # Only annotate pull requests if... we are building for a pull request
+        condition: eq(variables['Build.Reason'], 'PullRequest')
+        #continueOnError: true
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          POLARIS_URL: $(POLARIS_URL)
+          POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
+
+      - script: $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --project $BUILD_REPOSITORY_NAME $SECURITY_GATE_ARGS --exit1-if-issues
+        displayName: Check Polaris Security Gate
+        # Break the build on central results only on master
+        # TODO break the build differently on pull request
+        condition: eq(variables['Build.SourceBranchName'], 'master')
+        env:
+          POLARIS_URL: $(POLARIS_URL)
+          POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
