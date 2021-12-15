@@ -1,8 +1,13 @@
+# References
+# https://github.com/synopsys-sig-community/synopsys-azure-templates 
+# https://github.com/synopsys-sig-community/synopsys-azure-tools 
+# https://github.com/synopsys-sig-community/synopsys-azure-templates/blob/main/coverity-on-polaris-microsoft-hosted.yml
+
 #parameters:
 #  security_gate_args: "--new"
 
 jobs:
-  - job: CoverityOnPolaris
+  - job: Push_Polaris_Issues_Azure
 
     variables:
       SYNOPSYS_AZURE_TOOLS_REPO: https://github.com/synopsys-sig-community/synopsys-azure-tools
