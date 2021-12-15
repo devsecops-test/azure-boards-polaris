@@ -32,7 +32,10 @@ jobs:
           chmod +x azure-polaris-issues-tool.py
           chmod +x azure-polaris-annotate-pr.py
       
-      - bash: python3 synopsys-azure-tools/git-assign-issues.py --url $POLARIS_URL --project $BUILD_REPOSITORY_NAME
+      - bash: |
+           wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/git-assign-issues.py
+           chmod +x git-assign-issues.py
+           python3 synopsys-azure-tools/git-assign-issues.py --url $POLARIS_URL --project $BUILD_REPOSITORY_NAME
         displayName: Assign issues to owners
           # Run full analysis only on builds of master, not on pull requests
         condition: eq(variables['Build.SourceBranchName'], 'main')
@@ -40,7 +43,10 @@ jobs:
           POLARIS_URL: $(POLARIS_URL)
           POLARIS_ACCESS_TOKEN: $(POLARIS_ACCESS_TOKEN)
 
-      - script: $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project $BUILD_REPOSITORY_NAME
+      - script: |
+            wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/azure-polaris-issues-tool.py
+            chmod +x azure-polaris-issues-tool.py
+            $(pyTools.pythonLocation)/bin/python synopsys-azure-tools/azure-polaris-issues-tool.py --url $POLARIS_URL --token $POLARIS_ACCESS_TOKEN --new --az-work-items --project $BUILD_REPOSITORY_NAME
         displayName: Create Work Items for New Issues
         # Only create work items for pushes to a main branch
         condition: eq(variables['Build.SourceBranchName'], 'main')
