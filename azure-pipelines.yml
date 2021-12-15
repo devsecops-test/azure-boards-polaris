@@ -25,14 +25,6 @@ jobs:
         condition: or(eq(variables['Build.SourceBranchName'], 'main'), eq(variables['Build.Reason'], 'PullRequest'))
       
       - bash: |
-          wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/git-assign-issues.py
-          wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/azure-polaris-issues-tool.py
-          wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/azure-polaris-annotate-pr.py
-          chmod +x git-assign-issues.py
-          chmod +x azure-polaris-issues-tool.py
-          chmod +x azure-polaris-annotate-pr.py
-      
-      - bash: |
            wget https://raw.githubusercontent.com/synopsys-sig-community/synopsys-azure-tools/main/git-assign-issues.py
            chmod +x git-assign-issues.py
            python3 synopsys-azure-tools/git-assign-issues.py --url $POLARIS_URL --project $BUILD_REPOSITORY_NAME
